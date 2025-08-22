@@ -25,30 +25,12 @@ export async function POST(request: NextRequest) {
     
     const body = await request.json()
     
-    const { team_name, team_emails, github_link, live_demo_link, twitter_post_link } = body
+    const { team_id, github_link, live_demo_link, twitter_post_link } = body
 
     // Validate required fields
-    if (!team_name || !team_emails || !github_link || !live_demo_link || !twitter_post_link) {
+    if (!team_id || !github_link || !live_demo_link || !twitter_post_link) {
       return NextResponse.json(
         { error: 'All fields are required' },
-        { status: 400 }
-      )
-    }
-
-    // Validate team size
-    if (!Array.isArray(team_emails) || team_emails.length < 1 || team_emails.length > 4) {
-      return NextResponse.json(
-        { error: 'Team must have 1-4 members' },
-        { status: 400 }
-      )
-    }
-
-    // Validate email formats
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    const invalidEmails = team_emails.filter((email: string) => !emailRegex.test(email))
-    if (invalidEmails.length > 0) {
-      return NextResponse.json(
-        { error: 'Invalid email format(s)' },
         { status: 400 }
       )
     }
@@ -69,12 +51,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verify team exists
+    const { data: teamData, error: teamError } = await supabase
+      .from('teams')
+      .select('id, team_name')
+      .eq('id', team_id)
+      .single()
+
+    if (teamError || !teamData) {
+      return NextResponse.json(
+        { error: 'Invalid team selected' },
+        { status: 400 }
+      )
+    }
+
     // Insert into Supabase
     const { data, error } = await supabase
       .from('submissions')
       .insert({
-        team_name: team_name.trim(),
-        team_emails: team_emails.map((email: string) => email.trim()),
+        team_id: team_id,
         github_link: github_link.trim(),
         live_demo_link: live_demo_link.trim(),
         twitter_post_link: twitter_post_link.trim(),
@@ -83,6 +78,15 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase error:', error)
+      
+      // Handle unique constraint violation (team already submitted)
+      if (error.code === '23505') {
+        return NextResponse.json(
+          { error: 'This team has already submitted a project.' },
+          { status: 409 }
+        )
+      }
+      
       return NextResponse.json(
         { error: 'Failed to submit. Please try again.' },
         { status: 500 }

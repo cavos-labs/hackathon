@@ -5,9 +5,11 @@ A hackathon submission website for the AEGIS-v1 minihackathon competition.
 ## Features
 
 - Landing page with hackathon details
-- Project submission form with team registration (1-4 members)
+- **Two-step process**: Team registration → Project submission
+- Team management system with 1-4 members per team
+- Project submission form with team dropdown selection
 - Theme toggle (black/white)
-- Supabase integration for storing submissions
+- Secure server-side API with Supabase integration
 - Responsive design with custom fonts
 
 ## Setup
@@ -42,18 +44,32 @@ A hackathon submission website for the AEGIS-v1 minihackathon competition.
 
 This application uses server-side API routes to securely handle Supabase operations. Sensitive credentials are never exposed to the client-side code.
 
+## How It Works
+
+1. **Team Registration**: Teams register first with their name and member emails (1-4 members)
+2. **Project Submission**: Teams select their registered team from a dropdown and submit their project links
+3. **One Submission Per Team**: Each team can only submit one project (enforced by database constraint)
+
 ## Database Schema
 
-The application uses a single `submissions` table with the following structure:
+The application uses two main tables:
 
+### Teams Table
 - `id` (uuid, primary key)
-- `created_at` (timestamp)
-- `team_name` (text)
+- `team_name` (text, unique)
 - `team_emails` (text array, 1-4 emails)
+- `created_at` (timestamp)
+
+### Submissions Table
+- `id` (uuid, primary key)
+- `team_id` (uuid, foreign key to teams)
 - `github_link` (text, must be GitHub URL)
 - `live_demo_link` (text)
 - `twitter_post_link` (text, must be Twitter/X URL)
+- `created_at` (timestamp)
 - `submitted_at` (timestamp)
+
+**Note**: Each team can only submit one project (unique constraint on team_id).
 
 ## Tech Stack
 

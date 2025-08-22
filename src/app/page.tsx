@@ -1,16 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { ThemeProvider } from '@/contexts/ThemeContext'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Navigation } from '@/components/Navigation'
 import { SubmissionForm } from '@/components/SubmissionForm'
+import { TeamRegistrationForm } from '@/components/TeamRegistrationForm'
 
 function HomePage() {
   const [showSubmissionForm, setShowSubmissionForm] = useState(false)
+  const [showTeamRegistration, setShowTeamRegistration] = useState(false)
 
   return (
     <div className="min-h-screen flex flex-col">
       <ThemeToggle />
+      <Navigation />
       
       {/* Hero Section */}
       <section className="flex-1 flex flex-col items-center justify-center px-4 py-16 text-center">
@@ -25,12 +28,20 @@ function HomePage() {
           Winner gets $1000
         </p>
         
-        <button
-          onClick={() => setShowSubmissionForm(true)}
-          className="font-mono px-8 py-4 border border-foreground text-foreground rounded-lg text-lg hover:bg-foreground hover:text-background transition-colors font-medium"
-        >
-          Submit now
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => setShowTeamRegistration(true)}
+            className="font-mono px-8 py-4 border border-foreground text-foreground rounded-lg text-lg hover:bg-foreground hover:text-background transition-colors font-medium"
+          >
+            Register Team
+          </button>
+          <button
+            onClick={() => setShowSubmissionForm(true)}
+            className="font-mono px-8 py-4 bg-foreground text-background rounded-lg text-lg hover:opacity-80 transition-opacity font-medium"
+          >
+            Submit Project
+          </button>
+        </div>
       </section>
       
       {/* Details Section */}
@@ -66,6 +77,15 @@ function HomePage() {
         </div>
       </section>
       
+      {showTeamRegistration && (
+        <TeamRegistrationForm 
+          onClose={() => setShowTeamRegistration(false)}
+          onSuccess={() => {
+            // Optionally refresh team list or show success message
+          }}
+        />
+      )}
+      
       {showSubmissionForm && (
         <SubmissionForm onClose={() => setShowSubmissionForm(false)} />
       )}
@@ -74,9 +94,5 @@ function HomePage() {
 }
 
 export default function Home() {
-  return (
-    <ThemeProvider>
-      <HomePage />
-    </ThemeProvider>
-  )
+  return <HomePage />
 }
