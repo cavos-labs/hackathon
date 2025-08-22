@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #EAE5DC;
+  --background-white: #ffffff;
+  --foreground-white: #000000;
+}
+
+[data-theme="white"] {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-roma-gothic: var(--font-roma-gothic);
+  --font-jetbrains-mono: var(--font-jetbrains-mono);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-roma-gothic), sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.font-mono {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-weight: 100;
+}
+
+button {
+  cursor: pointer;
+}
